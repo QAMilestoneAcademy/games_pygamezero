@@ -1,3 +1,5 @@
+#https://kenney.nl/assets?q=2d
+
 import pgzrun
 from random import randint
 
@@ -14,6 +16,7 @@ def draw():
     screen.fill(color=(128,0,0))
     alien.draw()
     screen.draw.text(message,center=(400,40),fontsize=30)
+
 
 def place_alien():
     alien.x=randint(50,WIDTH-50)
