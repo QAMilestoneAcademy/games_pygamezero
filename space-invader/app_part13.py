@@ -1,13 +1,14 @@
-# Add background
+# Making better bullets
 import pygame
 import random
+import math
 
 # initialize the pygame
 pygame.init()
 
 # create screen
 screen = pygame.display.set_mode((800, 600))
-#Background-freepik.com
+# Background-freepik.com
 background = pygame.image.load('background.png')
 
 ##Title & Icon
@@ -24,10 +25,23 @@ playerX_change = 0
 
 # Enemy
 enemyImg = pygame.image.load('enemy.png')
-enemyX = random.randint(0,800)
-enemyY = random.randint(50,150)
+enemyX = random.randint(0, 735)
+enemyY = random.randint(50, 150)
 enemyX_change = 4
-enemyY_change = 40
+enemyY_change = 20
+
+# Bullet
+# ready- you can't see the bullet on the screen
+# fire- bullet is currently moving
+bulletImg = pygame.image.load('bullet.png')
+bulletX = 0
+bulletY = 480
+bulletX_change = 0
+bulletY_change = 6
+bullet_state = "ready"
+
+score=0
+
 
 # draw player using blit(means draw) & screen is known as surface
 def player(x, y):
@@ -39,12 +53,27 @@ def enemy(x, y):
     screen.blit(enemyImg, (x, y))
 
 
+# Fire bullet when spacebar is pressed
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = "fire"
+    screen.blit(bulletImg, (x + 16, y + 10))
+
+
+def isCollison(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt(math.pow(enemyX - bulletX, 2) + (math.pow(enemyY - bulletY, 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
 # set infinite loop to create the screen running
 running = True
 while running:
     # RGB-https://www.rapidtables.com/convert/color/hex-to-rgb.html
     screen.fill((0, 0, 0))
-    screen.blit(background,(0,0))
+    screen.blit(background, (0, 0))
     # playerX+=0.2
     # playerX -= 0.1
     # playerY -= 0.1
@@ -66,6 +95,10 @@ while running:
                 # print("right arrow is pressed")
                 # decrease the value of x coordinate
                 playerX_change = 5
+            if event.key == pygame.K_SPACE:
+                if bullet_state == 'ready':
+                    bulletX = playerX
+                    fire_bullet(bulletX, bulletY)
         # key up happens when key is released
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -90,8 +123,22 @@ while running:
     elif enemyX >= 736:
         enemyX_change = -4
         enemyY += enemyY_change
-
-
     enemy(enemyX, enemyY)
+    # bullet movement
+    if bulletY <= 0:
+        bulletY = 480
+        bullet_state = "ready"
+    if bullet_state == "fire":
+        fire_bullet(bulletX, bulletY)
+        bulletY -= bulletY_change
+    #collision detection
+    collision=isCollison(enemyX,enemyY,bulletX,bulletY)
+    if collision:
+        bulletY=480
+        bullet_state="ready"
+        score+=1
+        print(score)
+        enemyX=random.randint(0,735)
+        enemyY=random.randint(50,150)
     # update the display inside while loop
     pygame.display.update()
